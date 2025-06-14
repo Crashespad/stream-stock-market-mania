@@ -92,9 +92,12 @@ export type Database = {
           created_at: string
           followers: number
           id: number
+          is_live: boolean | null
           name: string
           platform: string
           price: number
+          social_media_url: string | null
+          streaming_url: string | null
           user_id: string | null
         }
         Insert: {
@@ -105,9 +108,12 @@ export type Database = {
           created_at?: string
           followers: number
           id?: number
+          is_live?: boolean | null
           name: string
           platform: string
           price: number
+          social_media_url?: string | null
+          streaming_url?: string | null
           user_id?: string | null
         }
         Update: {
@@ -118,9 +124,12 @@ export type Database = {
           created_at?: string
           followers?: number
           id?: number
+          is_live?: boolean | null
           name?: string
           platform?: string
           price?: number
+          social_media_url?: string | null
+          streaming_url?: string | null
           user_id?: string | null
         }
         Relationships: []

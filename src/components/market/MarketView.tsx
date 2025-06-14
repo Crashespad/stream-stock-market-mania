@@ -51,6 +51,7 @@ export const MarketView = ({ streamers, handleSelectStreamer }: MarketViewProps)
               followers: streamer.followers,
               avgViewers: streamer.avg_viewers,
               avatar: streamer.avatar || '',
+              is_live: streamer.is_live || false,
             }}
             onTrade={() => handleSelectStreamer(streamer)}
           />
