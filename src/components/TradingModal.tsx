@@ -1,9 +1,10 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Twitch, Youtube, TrendingUp, TrendingDown } from "lucide-react";
+import { Twitch, Youtube, TrendingUp, TrendingDown, ArrowUp, ArrowDown } from "lucide-react";
 import { Tables } from "@/integrations/supabase/types";
 
 interface TradingModalProps {
@@ -15,7 +16,7 @@ interface TradingModalProps {
 }
 
 export const TradingModal = ({ isOpen, onClose, streamer, onTrade, currentShares }: TradingModalProps) => {
-  const [action, setAction] = useState("buy");
+  const [action, setAction] = useState("long");
   const [shares, setShares] = useState(1);
 
   if (!streamer) return null;
@@ -69,23 +70,53 @@ export const TradingModal = ({ isOpen, onClose, streamer, onTrade, currentShares
             </div>
           )}
 
-          <div className="flex gap-2">
-            <Button
-              variant={action === "buy" ? "default" : "outline"}
-              onClick={() => setAction("buy")}
-              className="flex-1"
-            >
-              Buy
-            </Button>
-            <Button
-              variant={action === "sell" ? "default" : "outline"}
-              onClick={() => setAction("sell")}
-              className="flex-1"
-              disabled={currentShares === 0}
-            >
-              Sell
-            </Button>
+          <div className="space-y-3">
+            <label className="text-sm text-gray-300 font-semibold">Trade Type</label>
+            <div className="grid grid-cols-3 gap-2">
+              <Button
+                variant={action === "long" ? "default" : "outline"}
+                onClick={() => setAction("long")}
+                className={`flex-col h-auto py-3 ${action === "long" ? "bg-green-600 hover:bg-green-700" : "border-green-600 text-green-400 hover:bg-green-600/20"}`}
+              >
+                <ArrowUp className="w-5 h-5 mb-1" />
+                <span className="text-xs">Long</span>
+                <span className="text-xs opacity-75">Buy</span>
+              </Button>
+              <Button
+                variant={action === "short" ? "default" : "outline"}
+                onClick={() => setAction("short")}
+                className={`flex-col h-auto py-3 ${action === "short" ? "bg-red-600 hover:bg-red-700" : "border-red-600 text-red-400 hover:bg-red-600/20"}`}
+              >
+                <ArrowDown className="w-5 h-5 mb-1" />
+                <span className="text-xs">Short</span>
+                <span className="text-xs opacity-75">Sell</span>
+              </Button>
+              <Button
+                variant={action === "sell" ? "default" : "outline"}
+                onClick={() => setAction("sell")}
+                className={`flex-col h-auto py-3 ${action === "sell" ? "bg-gray-600 hover:bg-gray-700" : "border-gray-600 text-gray-400 hover:bg-gray-600/20"}`}
+                disabled={currentShares === 0}
+              >
+                <TrendingDown className="w-5 h-5 mb-1" />
+                <span className="text-xs">Close</span>
+                <span className="text-xs opacity-75">Exit</span>
+              </Button>
+            </div>
           </div>
+
+          {action === "long" && (
+            <div className="bg-green-900/30 rounded-lg p-3 text-sm">
+              <p className="text-green-300 font-semibold mb-1">Long Position</p>
+              <p className="text-gray-300">You profit if the price goes UP. You lose money if the price goes DOWN.</p>
+            </div>
+          )}
+
+          {action === "short" && (
+            <div className="bg-red-900/30 rounded-lg p-3 text-sm">
+              <p className="text-red-300 font-semibold mb-1">Short Position</p>
+              <p className="text-gray-300">You profit if the price goes DOWN. You lose money if the price goes UP.</p>
+            </div>
+          )}
 
           <div className="space-y-2">
             <label className="text-sm text-gray-300">Number of Shares</label>
@@ -109,9 +140,9 @@ export const TradingModal = ({ isOpen, onClose, streamer, onTrade, currentShares
               <span>${streamer.price.toFixed(2)}</span>
             </div>
             <div className="flex justify-between font-bold text-lg border-t border-gray-600 pt-2">
-              <span>Total:</span>
-              <span className={action === "buy" ? "text-red-400" : "text-green-400"}>
-                {action === "buy" ? "-" : "+"}${total.toFixed(2)}
+              <span>Total Cost:</span>
+              <span className="text-blue-400">
+                ${total.toFixed(2)}
               </span>
             </div>
           </div>
@@ -119,12 +150,14 @@ export const TradingModal = ({ isOpen, onClose, streamer, onTrade, currentShares
           <Button
             onClick={handleTrade}
             className={`w-full font-semibold ${
-              action === "buy" 
+              action === "long" 
                 ? "bg-green-600 hover:bg-green-700" 
-                : "bg-red-600 hover:bg-red-700"
+                : action === "short"
+                ? "bg-red-600 hover:bg-red-700"
+                : "bg-gray-600 hover:bg-gray-700"
             }`}
           >
-            {action === "buy" ? "Buy Shares" : "Sell Shares"}
+            {action === "long" ? "Open Long Position" : action === "short" ? "Open Short Position" : "Close Position"}
           </Button>
         </div>
       </DialogContent>
