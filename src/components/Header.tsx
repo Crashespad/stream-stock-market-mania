@@ -1,8 +1,15 @@
 
 import { Button } from "@/components/ui/button";
-import { DollarSign, TrendingUp, User, LogOut, LogIn, UserCog, Info } from "lucide-react";
+import { DollarSign, TrendingUp, User, LogOut, LogIn, UserCog, Info, Menu } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 
 interface HeaderProps {
   balance: number;
@@ -91,10 +98,49 @@ export const Header = ({ balance, portfolioValue, currentTab, setCurrentTab, isL
               </Button>
             </div>
           ) : (
-            <Button onClick={() => navigate('/auth')} variant="outline" className="text-white border-white/50 hover:bg-white/10 hover:text-white">
-              <LogIn className="w-4 h-4 mr-2" />
-              Login / Sign Up
-            </Button>
+            <div className="flex items-center gap-4">
+              {/* Desktop Menu */}
+              <div className="hidden md:flex items-center gap-4">
+                <Button 
+                  onClick={() => navigate('/about')} 
+                  variant="ghost" 
+                  className="text-white hover:bg-white/10"
+                >
+                  <Info className="w-4 h-4 mr-2" />
+                  About
+                </Button>
+                <Button 
+                  onClick={() => navigate('/auth')} 
+                  variant="outline" 
+                  className="text-white border-white/50 hover:bg-white/10 hover:text-white"
+                >
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Login / Sign Up
+                </Button>
+              </div>
+              
+              {/* Mobile Menu */}
+              <div className="md:hidden">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="text-white hover:bg-white/10">
+                      <Menu className="w-5 h-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="bg-black/80 border-white/20 backdrop-blur-sm">
+                    <DropdownMenuItem onClick={() => navigate('/about')} className="text-white hover:bg-white/10">
+                      <Info className="w-4 h-4 mr-2" />
+                      About
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator className="bg-white/20" />
+                    <DropdownMenuItem onClick={() => navigate('/auth')} className="text-white hover:bg-white/10">
+                      <LogIn className="w-4 h-4 mr-2" />
+                      Login / Sign Up
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
           )}
         </div>
       </div>
