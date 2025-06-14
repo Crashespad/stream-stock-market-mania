@@ -98,6 +98,6 @@ export const Header = ({ balance, portfolioValue, currentTab, setCurrentTab, isL
           )}
         </div>
       </div>
-    </div>
+    </header>
   );
 };
