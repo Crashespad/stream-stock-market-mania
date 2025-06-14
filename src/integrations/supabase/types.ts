@@ -9,6 +9,39 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          created_at: string
+          criteria: Json
+          description: string
+          icon: string | null
+          id: string
+          name: string
+          reward_type: string | null
+          reward_value: number | null
+        }
+        Insert: {
+          created_at?: string
+          criteria: Json
+          description: string
+          icon?: string | null
+          id?: string
+          name: string
+          reward_type?: string | null
+          reward_value?: number | null
+        }
+        Update: {
+          created_at?: string
+          criteria?: Json
+          description?: string
+          icon?: string | null
+          id?: string
+          name?: string
+          reward_type?: string | null
+          reward_value?: number | null
+        }
+        Relationships: []
+      }
       balances: {
         Row: {
           balance: number
@@ -23,6 +56,114 @@ export type Database = {
         Update: {
           balance?: number
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      educational_content: {
+        Row: {
+          author_id: string | null
+          content: string
+          created_at: string
+          difficulty: string
+          id: string
+          published: boolean | null
+          tags: string[] | null
+          title: string
+          type: string
+          updated_at: string
+          views_count: number | null
+        }
+        Insert: {
+          author_id?: string | null
+          content: string
+          created_at?: string
+          difficulty: string
+          id?: string
+          published?: boolean | null
+          tags?: string[] | null
+          title: string
+          type: string
+          updated_at?: string
+          views_count?: number | null
+        }
+        Update: {
+          author_id?: string | null
+          content?: string
+          created_at?: string
+          difficulty?: string
+          id?: string
+          published?: boolean | null
+          tags?: string[] | null
+          title?: string
+          type?: string
+          updated_at?: string
+          views_count?: number | null
+        }
+        Relationships: []
+      }
+      leaderboard: {
+        Row: {
+          calculated_at: string
+          id: string
+          period: string
+          profit_loss: number
+          profit_loss_percentage: number
+          rank: number | null
+          total_portfolio_value: number
+          user_id: string
+        }
+        Insert: {
+          calculated_at?: string
+          id?: string
+          period: string
+          profit_loss: number
+          profit_loss_percentage: number
+          rank?: number | null
+          total_portfolio_value: number
+          user_id: string
+        }
+        Update: {
+          calculated_at?: string
+          id?: string
+          period?: string
+          profit_loss?: number
+          profit_loss_percentage?: number
+          rank?: number | null
+          total_portfolio_value?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          data: Json | null
+          id: string
+          message: string
+          read: boolean | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json | null
+          id?: string
+          message: string
+          read?: boolean | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json | null
+          id?: string
+          message?: string
+          read?: boolean | null
+          title?: string
+          type?: string
           user_id?: string
         }
         Relationships: []
@@ -62,6 +203,47 @@ export type Database = {
           },
         ]
       }
+      price_alerts: {
+        Row: {
+          alert_type: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          streamer_id: number
+          target_price: number
+          triggered_at: string | null
+          user_id: string
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          streamer_id: number
+          target_price: number
+          triggered_at?: string | null
+          user_id: string
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          streamer_id?: number
+          target_price?: number
+          triggered_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_alerts_streamer_id_fkey"
+            columns: ["streamer_id"]
+            isOneToOne: false
+            referencedRelation: "streamers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -82,6 +264,41 @@ export type Database = {
           username?: string | null
         }
         Relationships: []
+      }
+      shared_trades: {
+        Row: {
+          caption: string | null
+          created_at: string
+          id: string
+          likes_count: number | null
+          transaction_id: number
+          user_id: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          likes_count?: number | null
+          transaction_id: number
+          user_id: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          likes_count?: number | null
+          transaction_id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shared_trades_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       streamers: {
         Row: {
@@ -165,6 +382,142 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "transactions_streamer_id_fkey"
+            columns: ["streamer_id"]
+            isOneToOne: false
+            referencedRelation: "streamers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_achievements: {
+        Row: {
+          achievement_id: string
+          earned_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          earned_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          earned_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_achievements_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "achievements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_analytics: {
+        Row: {
+          best_performing_streamer_id: number | null
+          created_at: string
+          id: string
+          portfolio_growth_percentage: number | null
+          risk_score: number | null
+          total_profit_loss: number | null
+          total_trades: number | null
+          trading_streak: number | null
+          updated_at: string
+          user_id: string
+          worst_performing_streamer_id: number | null
+        }
+        Insert: {
+          best_performing_streamer_id?: number | null
+          created_at?: string
+          id?: string
+          portfolio_growth_percentage?: number | null
+          risk_score?: number | null
+          total_profit_loss?: number | null
+          total_trades?: number | null
+          trading_streak?: number | null
+          updated_at?: string
+          user_id: string
+          worst_performing_streamer_id?: number | null
+        }
+        Update: {
+          best_performing_streamer_id?: number | null
+          created_at?: string
+          id?: string
+          portfolio_growth_percentage?: number | null
+          risk_score?: number | null
+          total_profit_loss?: number | null
+          total_trades?: number | null
+          trading_streak?: number | null
+          updated_at?: string
+          user_id?: string
+          worst_performing_streamer_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_analytics_best_performing_streamer_id_fkey"
+            columns: ["best_performing_streamer_id"]
+            isOneToOne: false
+            referencedRelation: "streamers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_analytics_worst_performing_streamer_id_fkey"
+            columns: ["worst_performing_streamer_id"]
+            isOneToOne: false
+            referencedRelation: "streamers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_follows: {
+        Row: {
+          created_at: string
+          follower_id: string
+          following_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          follower_id: string
+          following_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          follower_id?: string
+          following_id?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      watchlist: {
+        Row: {
+          created_at: string
+          id: string
+          streamer_id: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          streamer_id: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          streamer_id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "watchlist_streamer_id_fkey"
             columns: ["streamer_id"]
             isOneToOne: false
             referencedRelation: "streamers"

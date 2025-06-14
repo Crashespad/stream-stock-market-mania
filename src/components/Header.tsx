@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { DollarSign, TrendingUp, User, LogOut, LogIn, UserCog, Info, Menu, BarChart3 } from "lucide-react";
+import { DollarSign, TrendingUp, User, LogOut, LogIn, UserCog, Info, Menu, BarChart3, LayoutDashboard } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import {
@@ -50,6 +50,14 @@ export const Header = ({ balance, portfolioValue, currentTab, setCurrentTab, isL
                   >
                     <TrendingUp className="w-4 h-4 mr-2" />
                     Market
+                  </Button>
+                  <Button
+                    variant={currentTab === "dashboard" ? "default" : "ghost"}
+                    onClick={() => setCurrentTab("dashboard")}
+                    className="text-white hover:text-purple-300"
+                  >
+                    <LayoutDashboard className="w-4 h-4 mr-2" />
+                    Dashboard
                   </Button>
                   <Button
                     variant={currentTab === "portfolio" ? "default" : "ghost"}

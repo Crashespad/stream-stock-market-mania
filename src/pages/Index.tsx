@@ -6,6 +6,7 @@ import { Session } from '@supabase/supabase-js';
 import { Header } from "@/components/Header";
 import { TradingModal } from "@/components/TradingModal";
 import { Portfolio } from "@/components/Portfolio";
+import { Dashboard } from "@/components/dashboard/Dashboard";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMarketData } from "@/hooks/useMarketData";
@@ -98,6 +99,16 @@ const Index = () => {
             portfolio={portfolio || []} 
             streamers={streamers || []}
             balance={balance}
+          />
+        )}
+
+        {currentTab === "dashboard" && !!session && (
+          <Dashboard
+            profile={profile}
+            streamers={streamers}
+            portfolio={portfolio}
+            balance={balance}
+            totalPortfolioValue={totalPortfolioValue}
           />
         )}
         
