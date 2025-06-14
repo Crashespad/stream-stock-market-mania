@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { TrendingUp, Users, DollarSign, BarChart3, Shield, Zap, ArrowUp, ArrowDown, Target } from "lucide-react";
+import { TrendingUp, Users, DollarSign, BarChart3, Shield, Zap, ArrowUp, ArrowDown, Target, TrendingDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const About = () => {
