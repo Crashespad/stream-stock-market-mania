@@ -11,18 +11,19 @@ interface PortfolioProps {
 
 export const Portfolio = ({ portfolio, streamers, balance }: PortfolioProps) => {
   const totalValue = portfolio.reduce((total, item) => {
-    const streamer = streamers.find(s => s.id === item.streamerId);
+    const streamer = streamers.find(s => s.id === item.streamer_id);
     return total + (item.shares * (streamer?.price || 0));
   }, 0);
 
   const totalGainLoss = portfolio.reduce((total, item) => {
-    const streamer = streamers.find(s => s.id === item.streamerId);
+    const streamer = streamers.find(s => s.id === item.streamer_id);
     const currentValue = item.shares * (streamer?.price || 0);
-    const originalValue = item.shares * item.avgPrice;
+    const originalValue = item.shares * item.avg_price;
     return total + (currentValue - originalValue);
   }, 0);
 
-  const totalGainLossPercent = totalValue > 0 ? (totalGainLoss / (totalValue - totalGainLoss)) * 100 : 0;
+  const totalOriginalValue = portfolio.reduce((total, item) => total + item.shares * item.avg_price, 0);
+  const totalGainLossPercent = totalOriginalValue > 0 ? (totalGainLoss / totalOriginalValue) * 100 : 0;
 
   if (portfolio.length === 0) {
     return (
@@ -49,7 +50,7 @@ export const Portfolio = ({ portfolio, streamers, balance }: PortfolioProps) => 
           <div className="text-center">
             <TrendingUp className="w-8 h-8 text-blue-400 mx-auto mb-2" />
             <p className="text-gray-300 text-sm">Portfolio Value</p>
-            <p className="text-white text-xl font-bold">${totalValue.toLocaleString()}</p>
+            <p className="text-white text-xl font-bold">${totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
           </div>
         </Card>
         
@@ -81,19 +82,19 @@ export const Portfolio = ({ portfolio, streamers, balance }: PortfolioProps) => 
       <div className="space-y-4">
         <h2 className="text-2xl font-bold text-white">Your Holdings</h2>
         {portfolio.map((item) => {
-          const streamer = streamers.find(s => s.id === item.streamerId);
+          const streamer = streamers.find(s => s.id === item.streamer_id);
           if (!streamer) return null;
           
           const currentValue = item.shares * streamer.price;
-          const originalValue = item.shares * item.avgPrice;
+          const originalValue = item.shares * item.avg_price;
           const gainLoss = currentValue - originalValue;
-          const gainLossPercent = (gainLoss / originalValue) * 100;
+          const gainLossPercent = originalValue > 0 ? (gainLoss / originalValue) * 100 : 0;
           const PlatformIcon = streamer.platform === "twitch" ? Twitch : Youtube;
           const platformColor = streamer.platform === "twitch" ? "text-purple-400" : "text-red-400";
 
           return (
-            <Card key={item.streamerId} className="bg-white/10 backdrop-blur-md border-white/20 p-6">
-              <div className="flex items-center justify-between">
+            <Card key={item.streamer_id} className="bg-white/10 backdrop-blur-md border-white/20 p-6">
+              <div className="flex items-center justify-between flex-wrap gap-4">
                 <div className="flex items-center gap-4">
                   <div className="relative">
                     <img 
@@ -115,10 +116,10 @@ export const Portfolio = ({ portfolio, streamers, balance }: PortfolioProps) => 
                 </div>
                 
                 <div className="text-right">
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 flex-wrap justify-end">
                     <div>
                       <p className="text-gray-300 text-sm">Avg Price</p>
-                      <p className="text-white font-semibold">${item.avgPrice.toFixed(2)}</p>
+                      <p className="text-white font-semibold">${item.avg_price.toFixed(2)}</p>
                     </div>
                     <div>
                       <p className="text-gray-300 text-sm">Current Price</p>

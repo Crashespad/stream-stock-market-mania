@@ -1,135 +1,103 @@
 
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Session } from '@supabase/supabase-js';
 import { Header } from "@/components/Header";
 import { StreamerCard } from "@/components/StreamerCard";
 import { TradingModal } from "@/components/TradingModal";
 import { Portfolio } from "@/components/Portfolio";
-import { Button } from "@/components/ui/button";
-import { TrendingUp, Users, DollarSign, Trophy } from "lucide-react";
-
-// Mock streamer data
-const streamers = [
-  {
-    id: 1,
-    name: "xQcOW",
-    platform: "twitch",
-    price: 142.50,
-    change: 5.2,
-    changePercent: 3.8,
-    followers: 11800000,
-    avgViewers: 45000,
-    avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=face"
-  },
-  {
-    id: 2,
-    name: "MrBeast",
-    platform: "youtube",
-    price: 298.75,
-    change: -12.3,
-    changePercent: -4.1,
-    followers: 218000000,
-    avgViewers: 120000,
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face"
-  },
-  {
-    id: 3,
-    name: "PewDiePie",
-    platform: "youtube",
-    price: 187.20,
-    change: 8.4,
-    changePercent: 4.7,
-    followers: 111000000,
-    avgViewers: 85000,
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face"
-  },
-  {
-    id: 4,
-    name: "Pokimane",
-    platform: "twitch",
-    price: 89.60,
-    change: 2.1,
-    changePercent: 2.4,
-    followers: 9200000,
-    avgViewers: 28000,
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face"
-  },
-  {
-    id: 5,
-    name: "Ninja",
-    platform: "twitch",
-    price: 156.80,
-    change: -3.2,
-    changePercent: -2.0,
-    followers: 18700000,
-    avgViewers: 35000,
-    avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100&h=100&fit=crop&crop=face"
-  },
-  {
-    id: 6,
-    name: "Valkyrae",
-    platform: "youtube",
-    price: 78.90,
-    change: 6.7,
-    changePercent: 9.3,
-    followers: 3800000,
-    avgViewers: 22000,
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face"
-  }
-];
+import { TrendingUp, Users, DollarSign, Trophy, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
-  const [selectedStreamer, setSelectedStreamer] = useState(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [selectedStreamer, setSelectedStreamer] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [portfolio, setPortfolio] = useState([]);
-  const [balance, setBalance] = useState(10000);
   const [currentTab, setCurrentTab] = useState("market");
+  
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
-  // Simulate real-time price updates
   useEffect(() => {
-    const interval = setInterval(() => {
-      // This would connect to real APIs in production
-      console.log("Updating prices...");
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleTrade = (streamerId, action, shares, price) => {
-    const streamer = streamers.find(s => s.id === streamerId);
-    const totalCost = shares * price;
-
-    if (action === "buy" && balance >= totalCost) {
-      setBalance(prev => prev - totalCost);
-      setPortfolio(prev => {
-        const existing = prev.find(p => p.streamerId === streamerId);
-        if (existing) {
-          return prev.map(p => 
-            p.streamerId === streamerId 
-              ? { ...p, shares: p.shares + shares, avgPrice: ((p.avgPrice * p.shares) + totalCost) / (p.shares + shares) }
-              : p
-          );
-        }
-        return [...prev, { streamerId, streamerName: streamer.name, shares, avgPrice: price, platform: streamer.platform }];
-      });
-    } else if (action === "sell") {
-      const portfolioItem = portfolio.find(p => p.streamerId === streamerId);
-      if (portfolioItem && portfolioItem.shares >= shares) {
-        setBalance(prev => prev + totalCost);
-        setPortfolio(prev => 
-          prev.map(p => 
-            p.streamerId === streamerId 
-              ? { ...p, shares: p.shares - shares }
-              : p
-          ).filter(p => p.shares > 0)
-        );
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (!session) {
+        navigate('/auth');
       }
-    }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (_event === 'SIGNED_OUT') {
+        navigate('/auth');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  const { data: streamers, isLoading: isLoadingStreamers } = useQuery({
+    queryKey: ['streamers'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('streamers').select('*').order('price', { ascending: false });
+      if (error) throw new Error(error.message);
+      return data;
+    },
+    enabled: !!session,
+  });
+
+  const { data: balanceData, isLoading: isLoadingBalance } = useQuery({
+    queryKey: ['balance', session?.user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('balances').select('balance').single();
+      if (error) {
+        console.error("Error fetching balance:", error);
+        return { balance: 0 };
+      }
+      return data;
+    },
+    enabled: !!session?.user?.id,
+  });
+  const balance = balanceData?.balance || 0;
+
+  const { data: portfolio, isLoading: isLoadingPortfolio } = useQuery({
+    queryKey: ['portfolio', session?.user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('portfolio').select('*');
+      if (error) throw new Error(error.message);
+      return data;
+    },
+    enabled: !!session?.user?.id,
+  });
+
+  const handleTrade = (streamerId: number, action: string, shares: number, price: number) => {
+    toast({
+      title: "Trading is coming soon!",
+      description: "We are working on implementing the trade execution logic.",
+    });
     setIsModalOpen(false);
   };
 
-  const totalPortfolioValue = portfolio.reduce((total, item) => {
-    const streamer = streamers.find(s => s.id === item.streamerId);
+  const totalPortfolioValue = portfolio?.reduce((total, item) => {
+    const streamer = streamers?.find(s => s.id === item.streamer_id);
     return total + (item.shares * (streamer?.price || 0));
-  }, 0);
+  }, 0) || 0;
+
+  const isLoading = !session || isLoadingStreamers || isLoadingBalance || isLoadingPortfolio;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
+        <Loader2 className="w-16 h-16 text-white animate-spin" />
+      </div>
+    );
+  }
+
+  const topGainer = streamers && streamers.length > 0 ? [...streamers].sort((a,b) => b.change_percent - a.change_percent)[0] : null;
+  const highestPrice = streamers && streamers.length > 0 ? [...streamers].sort((a,b) => b.price - a.price)[0] : null;
+  const mostFollowers = streamers && streamers.length > 0 ? [...streamers].sort((a,b) => b.followers - a.followers)[0] : null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
@@ -138,12 +106,12 @@ const Index = () => {
         portfolioValue={totalPortfolioValue}
         currentTab={currentTab}
         setCurrentTab={setCurrentTab}
+        isLoggedIn={!!session}
       />
       
       <main className="container mx-auto px-4 py-8">
         {currentTab === "market" && (
           <>
-            {/* Hero Section */}
             <div className="text-center mb-12">
               <h1 className="text-6xl font-bold text-white mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
                 StreamStock Exchange
@@ -158,7 +126,7 @@ const Index = () => {
                 </div>
                 <div className="flex items-center gap-2 text-blue-400">
                   <Users className="w-5 h-5" />
-                  <span className="font-semibold">6 Active Streamers</span>
+                  <span className="font-semibold">{streamers?.length || 0} Active Streamers</span>
                 </div>
                 <div className="flex items-center gap-2 text-yellow-400">
                   <DollarSign className="w-5 h-5" />
@@ -167,43 +135,47 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Market Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-300 text-sm">Top Gainer</p>
-                    <p className="text-white text-xl font-bold">Valkyrae</p>
-                    <p className="text-green-400 text-sm">+9.3%</p>
+              {topGainer && (
+                <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-gray-300 text-sm">Top Gainer</p>
+                      <p className="text-white text-xl font-bold">{topGainer.name}</p>
+                      <p className="text-green-400 text-sm">+{topGainer.change_percent.toFixed(1)}%</p>
+                    </div>
+                    <Trophy className="w-10 h-10 text-yellow-400" />
                   </div>
-                  <Trophy className="w-10 h-10 text-yellow-400" />
                 </div>
-              </div>
-              <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-300 text-sm">Highest Price</p>
-                    <p className="text-white text-xl font-bold">MrBeast</p>
-                    <p className="text-blue-400 text-sm">$298.75</p>
+              )}
+              {highestPrice && (
+                <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-gray-300 text-sm">Highest Price</p>
+                      <p className="text-white text-xl font-bold">{highestPrice.name}</p>
+                      <p className="text-blue-400 text-sm">${highestPrice.price.toFixed(2)}</p>
+                    </div>
+                    <DollarSign className="w-10 h-10 text-green-400" />
                   </div>
-                  <DollarSign className="w-10 h-10 text-green-400" />
                 </div>
-              </div>
-              <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-300 text-sm">Most Followers</p>
-                    <p className="text-white text-xl font-bold">MrBeast</p>
-                    <p className="text-purple-400 text-sm">218M</p>
+              )}
+              {mostFollowers && (
+                <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-gray-300 text-sm">Most Followers</p>
+                      <p className="text-white text-xl font-bold">{mostFollowers.name}</p>
+                      <p className="text-purple-400 text-sm">{(mostFollowers.followers / 1_000_000).toFixed(1)}M</p>
+                    </div>
+                    <Users className="w-10 h-10 text-purple-400" />
                   </div>
-                  <Users className="w-10 h-10 text-purple-400" />
                 </div>
-              </div>
+              )}
             </div>
 
-            {/* Streamer Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {streamers.map((streamer) => (
+              {streamers?.map((streamer) => (
                 <StreamerCard
                   key={streamer.id}
                   streamer={streamer}
@@ -219,8 +191,8 @@ const Index = () => {
 
         {currentTab === "portfolio" && (
           <Portfolio 
-            portfolio={portfolio} 
-            streamers={streamers}
+            portfolio={portfolio || []} 
+            streamers={streamers || []}
             balance={balance}
           />
         )}
@@ -231,7 +203,7 @@ const Index = () => {
         onClose={() => setIsModalOpen(false)}
         streamer={selectedStreamer}
         onTrade={handleTrade}
-        currentShares={portfolio.find(p => p.streamerId === selectedStreamer?.id)?.shares || 0}
+        currentShares={portfolio?.find(p => p.streamer_id === selectedStreamer?.id)?.shares || 0}
       />
     </div>
   );

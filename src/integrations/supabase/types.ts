@@ -9,7 +9,157 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      balances: {
+        Row: {
+          balance: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      portfolio: {
+        Row: {
+          avg_price: number
+          id: number
+          shares: number
+          streamer_id: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          avg_price: number
+          id?: number
+          shares: number
+          streamer_id: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          avg_price?: number
+          id?: number
+          shares?: number
+          streamer_id?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_streamer_id_fkey"
+            columns: ["streamer_id"]
+            isOneToOne: false
+            referencedRelation: "streamers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          id: string
+          updated_at: string | null
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          id: string
+          updated_at?: string | null
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          id?: string
+          updated_at?: string | null
+          username?: string | null
+        }
+        Relationships: []
+      }
+      streamers: {
+        Row: {
+          avatar: string | null
+          avg_viewers: number
+          change: number
+          change_percent: number
+          created_at: string
+          followers: number
+          id: number
+          name: string
+          platform: string
+          price: number
+        }
+        Insert: {
+          avatar?: string | null
+          avg_viewers: number
+          change: number
+          change_percent: number
+          created_at?: string
+          followers: number
+          id?: number
+          name: string
+          platform: string
+          price: number
+        }
+        Update: {
+          avatar?: string | null
+          avg_viewers?: number
+          change?: number
+          change_percent?: number
+          created_at?: string
+          followers?: number
+          id?: number
+          name?: string
+          platform?: string
+          price?: number
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          created_at: string | null
+          id: number
+          price: number
+          shares: number
+          streamer_id: number
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          price: number
+          shares: number
+          streamer_id: number
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          price?: number
+          shares?: number
+          streamer_id?: number
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_streamer_id_fkey"
+            columns: ["streamer_id"]
+            isOneToOne: false
+            referencedRelation: "streamers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
