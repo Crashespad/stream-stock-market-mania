@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -47,9 +46,12 @@ export const WatchlistPanel = ({ streamers }: WatchlistPanelProps) => {
 
   const addToWatchlistMutation = useMutation({
     mutationFn: async (streamerId: number) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("User not authenticated");
+      
       const { error } = await supabase
         .from('watchlist')
-        .insert({ streamer_id: streamerId });
+        .insert({ streamer_id: streamerId, user_id: user.id });
       if (error) throw error;
     },
     onSuccess: () => {

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -50,7 +49,7 @@ export const PriceAlertsPanel = ({ streamers }: PriceAlertsPanelProps) => {
   });
 
   const createAlertMutation = useMutation({
-    mutationFn: async (alertData: { streamer_id: number; alert_type: string; target_price: number }) => {
+    mutationFn: async (alertData: { streamer_id: number; alert_type: string; target_price: number; user_id: string }) => {
       const { error } = await supabase
         .from('price_alerts')
         .insert(alertData);
@@ -92,13 +91,24 @@ export const PriceAlertsPanel = ({ streamers }: PriceAlertsPanelProps) => {
     },
   });
 
-  const handleCreateAlert = () => {
+  const handleCreateAlert = async () => {
     if (!selectedStreamerId || !targetPrice) return;
+    
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to create price alerts.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     createAlertMutation.mutate({
       streamer_id: parseInt(selectedStreamerId),
       alert_type: alertType,
       target_price: parseFloat(targetPrice),
+      user_id: user.id,
     });
   };
 
