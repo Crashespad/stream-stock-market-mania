@@ -55,9 +55,18 @@ const Contact = () => {
 
   const submitMutation = useMutation({
     mutationFn: async (data: FormData) => {
+      // Ensure all fields are present and properly typed
+      const submissionData = {
+        name: data.name,
+        email: data.email,
+        submission_type: data.submission_type,
+        subject: data.subject,
+        message: data.message,
+      };
+      
       const { error } = await supabase
         .from('contact_submissions')
-        .insert(data);
+        .insert(submissionData);
       
       if (error) throw error;
     },
