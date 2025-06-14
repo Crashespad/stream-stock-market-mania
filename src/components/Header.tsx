@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { DollarSign, TrendingUp, User, LogOut, LogIn, UserCog } from "lucide-react";
+import { DollarSign, TrendingUp, User, LogOut, LogIn, UserCog, Info } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 
@@ -25,34 +25,44 @@ export const Header = ({ balance, portfolioValue, currentTab, setCurrentTab, isL
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-8">
             <h1 className="text-2xl font-bold text-white cursor-pointer" onClick={() => setCurrentTab('market')}>StreamStock</h1>
-            {isLoggedIn && (
-              <nav className="hidden md:flex gap-4">
-                <Button
-                  variant={currentTab === "market" ? "default" : "ghost"}
-                  onClick={() => setCurrentTab("market")}
-                  className="text-white hover:text-purple-300"
-                >
-                  <TrendingUp className="w-4 h-4 mr-2" />
-                  Market
-                </Button>
-                <Button
-                  variant={currentTab === "portfolio" ? "default" : "ghost"}
-                  onClick={() => setCurrentTab("portfolio")}
-                  className="text-white hover:text-purple-300"
-                >
-                  <User className="w-4 h-4 mr-2" />
-                  Portfolio
-                </Button>
-                <Button
-                  variant={currentTab === "account" ? "default" : "ghost"}
-                  onClick={() => setCurrentTab("account")}
-                  className="text-white hover:text-purple-300"
-                >
-                  <UserCog className="w-4 h-4 mr-2" />
-                  Account
-                </Button>
-              </nav>
-            )}
+            <nav className="hidden md:flex gap-4">
+              {isLoggedIn && (
+                <>
+                  <Button
+                    variant={currentTab === "market" ? "default" : "ghost"}
+                    onClick={() => setCurrentTab("market")}
+                    className="text-white hover:text-purple-300"
+                  >
+                    <TrendingUp className="w-4 h-4 mr-2" />
+                    Market
+                  </Button>
+                  <Button
+                    variant={currentTab === "portfolio" ? "default" : "ghost"}
+                    onClick={() => setCurrentTab("portfolio")}
+                    className="text-white hover:text-purple-300"
+                  >
+                    <User className="w-4 h-4 mr-2" />
+                    Portfolio
+                  </Button>
+                  <Button
+                    variant={currentTab === "account" ? "default" : "ghost"}
+                    onClick={() => setCurrentTab("account")}
+                    className="text-white hover:text-purple-300"
+                  >
+                    <UserCog className="w-4 h-4 mr-2" />
+                    Account
+                  </Button>
+                </>
+              )}
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/about')}
+                className="text-white hover:text-purple-300"
+              >
+                <Info className="w-4 h-4 mr-2" />
+                About
+              </Button>
+            </nav>
           </div>
           
           {isLoggedIn ? (
@@ -88,6 +98,6 @@ export const Header = ({ balance, portfolioValue, currentTab, setCurrentTab, isL
           )}
         </div>
       </div>
-    </header>
+    </div>
   );
 };
