@@ -1,15 +1,15 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Twitch, Youtube, TrendingUp, TrendingDown } from "lucide-react";
+import { Tables } from "@/integrations/supabase/types";
 
 interface TradingModalProps {
   isOpen: boolean;
   onClose: () => void;
-  streamer: any;
+  streamer: Tables<'streamers'> | null;
   onTrade: (streamerId: number, action: string, shares: number, price: number) => void;
   currentShares: number;
 }
@@ -58,7 +58,7 @@ export const TradingModal = ({ isOpen, onClose, streamer, onTrade, currentShares
             <div className={`flex items-center justify-center gap-1 ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
               {isPositive ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
               <span>
-                {isPositive ? '+' : ''}{streamer.change.toFixed(2)} ({isPositive ? '+' : ''}{streamer.changePercent.toFixed(1)}%)
+                {isPositive ? '+' : ''}{streamer.change.toFixed(2)} ({isPositive ? '+' : ''}{streamer.change_percent.toFixed(1)}%)
               </span>
             </div>
           </div>
