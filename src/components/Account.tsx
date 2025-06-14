@@ -59,7 +59,7 @@ export const Account = ({ profile, streamers, refetchProfile, refetchStreamers }
             return;
         }
         
-        const { error } = await supabase.from('streamers').update({ user_id: user.id }).eq('id', claimableStreamerId);
+        const { error } = await supabase.from('streamers').update({ user_id: user.id }).eq('id', parseInt(claimableStreamerId, 10));
         if (error) {
             toast({ title: 'Error claiming streamer', description: error.message, variant: 'destructive' });
         } else {
