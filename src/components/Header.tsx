@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { DollarSign, TrendingUp, User, LogOut, LogIn, UserCog, Info, Menu } from "lucide-react";
+import { DollarSign, TrendingUp, User, LogOut, LogIn, UserCog, Info, Menu, BarChart3 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import {
@@ -33,6 +33,14 @@ export const Header = ({ balance, portfolioValue, currentTab, setCurrentTab, isL
           <div className="flex items-center gap-8">
             <h1 className="text-2xl font-bold text-white cursor-pointer" onClick={() => setCurrentTab('market')}>StreamStock</h1>
             <nav className="hidden md:flex gap-4">
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/')}
+                className="text-white hover:text-purple-300"
+              >
+                <BarChart3 className="w-4 h-4 mr-2" />
+                View All Streamers
+              </Button>
               {isLoggedIn && (
                 <>
                   <Button
@@ -128,6 +136,10 @@ export const Header = ({ balance, portfolioValue, currentTab, setCurrentTab, isL
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="bg-black/80 border-white/20 backdrop-blur-sm">
+                    <DropdownMenuItem onClick={() => navigate('/')} className="text-white hover:bg-white/10">
+                      <BarChart3 className="w-4 h-4 mr-2" />
+                      View All Streamers
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate('/about')} className="text-white hover:bg-white/10">
                       <Info className="w-4 h-4 mr-2" />
                       About
