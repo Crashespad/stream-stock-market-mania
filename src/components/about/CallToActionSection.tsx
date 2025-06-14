@@ -25,7 +25,7 @@ const CallToActionSection = () => {
           size="lg"
           className="border-white/50 text-white hover:bg-white/10"
         >
-          Browse Market
+          View All Streamers
         </Button>
       </div>
     </div>
