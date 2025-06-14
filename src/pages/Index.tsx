@@ -11,9 +11,11 @@ import { useToast } from "@/hooks/use-toast";
 import { useMarketData } from "@/hooks/useMarketData";
 import { MarketView } from "@/components/market/MarketView";
 import { Tables } from "@/integrations/supabase/types";
+import { Account } from "@/components/Account";
 
 const Index = () => {
   const [session, setSession] = useState<Session | null>(null);
+  const [isSessionLoading, setIsSessionLoading] = useState(true);
   const [selectedStreamer, setSelectedStreamer] = useState<Tables<'streamers'> | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentTab, setCurrentTab] = useState("market");
@@ -22,16 +24,16 @@ const Index = () => {
   const { toast } = useToast();
 
   useEffect(() => {
+    setIsSessionLoading(true);
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      if (!session) {
-        navigate('/auth');
-      }
+      setIsSessionLoading(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       if (_event === 'SIGNED_OUT') {
+        setCurrentTab('market');
         navigate('/auth');
       }
     });
@@ -39,9 +41,9 @@ const Index = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
   
-  const { streamers, balance, portfolio, totalPortfolioValue, isLoading: isLoadingData } = useMarketData(session);
+  const { streamers, balance, portfolio, totalPortfolioValue, isLoading: isLoadingData, profile, refetchStreamers, refetchProfile } = useMarketData(session);
   
-  const isLoading = !session || isLoadingData;
+  const isLoading = isSessionLoading || isLoadingData;
 
   const handleTrade = (streamerId: number, action: string, shares: number, price: number) => {
     toast({
@@ -52,6 +54,15 @@ const Index = () => {
   };
   
   const handleSelectStreamer = (streamer: Tables<'streamers'>) => {
+    if (!session) {
+      toast({
+        title: 'Please log in to trade',
+        description: 'You need an account to buy and sell streamer stocks.',
+        variant: 'destructive',
+      });
+      navigate('/auth');
+      return;
+    }
     setSelectedStreamer(streamer);
     setIsModalOpen(true);
   };
@@ -82,22 +93,31 @@ const Index = () => {
           />
         )}
 
-        {currentTab === "portfolio" && (
+        {currentTab === "portfolio" && !!session && (
           <Portfolio 
             portfolio={portfolio || []} 
             streamers={streamers || []}
             balance={balance}
           />
         )}
+        
+        {currentTab === "account" && !!session && (
+          <Account
+            profile={profile}
+            streamers={streamers}
+            refetchProfile={refetchProfile}
+            refetchStreamers={refetchStreamers}
+          />
+        )}
       </main>
 
-      <TradingModal
+      {!!session && <TradingModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         streamer={selectedStreamer}
         onTrade={handleTrade}
         currentShares={portfolio?.find(p => p.streamer_id === selectedStreamer?.id)?.shares || 0}
-      />
+      />}
     </div>
   );
 };

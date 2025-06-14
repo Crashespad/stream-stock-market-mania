@@ -4,17 +4,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { Session } from '@supabase/supabase-js';
 
 export const useMarketData = (session: Session | null) => {
-  const { data: streamers, isLoading: isLoadingStreamers } = useQuery({
+  const { data: streamers, isLoading: isLoadingStreamers, refetch: refetchStreamers } = useQuery({
     queryKey: ['streamers'],
     queryFn: async () => {
       const { data, error } = await supabase.from('streamers').select('*').order('price', { ascending: false });
       if (error) throw new Error(error.message);
       return data;
     },
-    enabled: !!session,
+    enabled: true,
   });
 
-  const { data: balanceData, isLoading: isLoadingBalance } = useQuery({
+  const { data: balanceData, isLoading: isLoadingBalance, refetch: refetchBalance } = useQuery({
     queryKey: ['balance', session?.user?.id],
     queryFn: async () => {
       const { data, error } = await supabase.from('balances').select('balance').single();
@@ -28,11 +28,24 @@ export const useMarketData = (session: Session | null) => {
   });
   const balance = balanceData?.balance || 0;
 
-  const { data: portfolio, isLoading: isLoadingPortfolio } = useQuery({
+  const { data: portfolio, isLoading: isLoadingPortfolio, refetch: refetchPortfolio } = useQuery({
     queryKey: ['portfolio', session?.user?.id],
     queryFn: async () => {
       const { data, error } = await supabase.from('portfolio').select('*');
       if (error) throw new Error(error.message);
+      return data;
+    },
+    enabled: !!session?.user?.id,
+  });
+
+  const { data: profile, isLoading: isLoadingProfile, refetch: refetchProfile } = useQuery({
+    queryKey: ['profile', session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return null;
+      const { data, error } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
+      if (error && error.code !== 'PGRST116') { // Ignore error if profile doesn't exist yet
+         throw new Error(error.message);
+      }
       return data;
     },
     enabled: !!session?.user?.id,
@@ -43,7 +56,7 @@ export const useMarketData = (session: Session | null) => {
     return total + (item.shares * (streamer?.price || 0));
   }, 0) || 0;
 
-  const isLoading = isLoadingStreamers || isLoadingBalance || isLoadingPortfolio;
+  const isLoading = isLoadingStreamers || (!!session && (isLoadingBalance || isLoadingPortfolio || isLoadingProfile));
 
-  return { streamers, balance, portfolio, totalPortfolioValue, isLoading };
+  return { streamers, balance, portfolio, totalPortfolioValue, isLoading, profile, refetchStreamers, refetchPortfolio, refetchBalance, refetchProfile };
 };

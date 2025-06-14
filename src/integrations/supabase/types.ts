@@ -95,6 +95,7 @@ export type Database = {
           name: string
           platform: string
           price: number
+          user_id: string | null
         }
         Insert: {
           avatar?: string | null
@@ -107,6 +108,7 @@ export type Database = {
           name: string
           platform: string
           price: number
+          user_id?: string | null
         }
         Update: {
           avatar?: string | null
@@ -119,6 +121,7 @@ export type Database = {
           name?: string
           platform?: string
           price?: number
+          user_id?: string | null
         }
         Relationships: []
       }
