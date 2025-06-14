@@ -57,7 +57,7 @@ const Contact = () => {
     mutationFn: async (data: FormData) => {
       const { error } = await supabase
         .from('contact_submissions')
-        .insert([data]);
+        .insert(data);
       
       if (error) throw error;
     },
@@ -90,10 +90,19 @@ const Contact = () => {
     { value: "support_request", label: "Support Request" },
   ];
 
+  // Default props for Header component since this is a public page
+  const headerProps = {
+    balance: 0,
+    portfolioValue: 0,
+    currentTab: "contact",
+    setCurrentTab: () => {},
+    isLoggedIn: false,
+  };
+
   if (isSubmitted) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
+        <Header {...headerProps} />
         <main className="container mx-auto px-4 py-8">
           <Card className="max-w-2xl mx-auto">
             <CardHeader className="text-center">
@@ -115,7 +124,7 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <Header {...headerProps} />
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
           <Card>
