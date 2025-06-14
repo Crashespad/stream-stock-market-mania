@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -178,7 +177,17 @@ const Index = () => {
               {streamers?.map((streamer) => (
                 <StreamerCard
                   key={streamer.id}
-                  streamer={streamer}
+                  streamer={{
+                    id: streamer.id,
+                    name: streamer.name,
+                    platform: streamer.platform,
+                    price: streamer.price,
+                    change: streamer.change,
+                    changePercent: streamer.change_percent,
+                    followers: streamer.followers,
+                    avgViewers: streamer.avg_viewers,
+                    avatar: streamer.avatar || '',
+                  }}
                   onTrade={() => {
                     setSelectedStreamer(streamer);
                     setIsModalOpen(true);
