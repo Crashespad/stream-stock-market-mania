@@ -9,6 +9,7 @@ import { AdminNavigation } from "@/components/admin/AdminNavigation";
 import { ApiKeysManagement } from "@/components/admin/ApiKeysManagement";
 import { StreamersManagement } from "@/components/admin/StreamersManagement";
 import { UserRolesManagement } from "@/components/admin/UserRolesManagement";
+import { UserManagement } from "@/components/admin/UserManagement";
 import { AdminLogs } from "@/components/admin/AdminLogs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -119,9 +120,14 @@ const Admin = () => {
         return <div>Access denied</div>;
       case "streamers":
         return <StreamersManagement userRole={userRole} />;
-      case "users":
+      case "user-roles":
         if (userRole === 'admin') {
           return <UserRolesManagement />;
+        }
+        return <div>Access denied</div>;
+      case "user-management":
+        if (userRole === 'admin') {
+          return <UserManagement />;
         }
         return <div>Access denied</div>;
       case "logs":
@@ -171,6 +177,32 @@ const Admin = () => {
                 </p>
               </CardContent>
             </Card>
+
+            {userRole === 'admin' && (
+              <>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>User Management</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      Manage user accounts, adjust balances, and handle suspensions.
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Role Assignment</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      Assign and manage user roles across the platform.
+                    </p>
+                  </CardContent>
+                </Card>
+              </>
+            )}
           </div>
         );
     }

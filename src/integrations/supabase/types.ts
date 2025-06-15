@@ -70,7 +70,15 @@ export type Database = {
           target_type?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "admin_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       api_configs: {
         Row: {
@@ -108,6 +116,54 @@ export type Database = {
         }
         Relationships: []
       }
+      balance_adjustments: {
+        Row: {
+          adjustment_type: string
+          admin_user_id: string
+          amount: number
+          created_at: string
+          id: string
+          notes: string | null
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          adjustment_type: string
+          admin_user_id: string
+          amount: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          reason: string
+          user_id: string
+        }
+        Update: {
+          adjustment_type?: string
+          admin_user_id?: string
+          amount?: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          reason?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "balance_adjustments_admin_user_id_fkey"
+            columns: ["admin_user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "balance_adjustments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       balances: {
         Row: {
           balance: number
@@ -124,7 +180,15 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "balances_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       contact_submissions: {
         Row: {
@@ -196,7 +260,15 @@ export type Database = {
           updated_at?: string
           views_count?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "educational_content_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       leaderboard: {
         Row: {
@@ -229,7 +301,15 @@ export type Database = {
           total_portfolio_value?: number
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "leaderboard_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notifications: {
         Row: {
@@ -262,7 +342,15 @@ export type Database = {
           type?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       portfolio: {
         Row: {
@@ -295,6 +383,13 @@ export type Database = {
             columns: ["streamer_id"]
             isOneToOne: false
             referencedRelation: "streamers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "portfolio_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
             referencedColumns: ["id"]
           },
         ]
@@ -338,6 +433,13 @@ export type Database = {
             referencedRelation: "streamers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "price_alerts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       profiles: {
@@ -359,7 +461,15 @@ export type Database = {
           updated_at?: string | null
           username?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       shared_trades: {
         Row: {
@@ -392,6 +502,13 @@ export type Database = {
             columns: ["transaction_id"]
             isOneToOne: false
             referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shared_trades_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
             referencedColumns: ["id"]
           },
         ]
@@ -451,7 +568,15 @@ export type Database = {
           streaming_url?: string | null
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "streamers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       transactions: {
         Row: {
@@ -489,6 +614,13 @@ export type Database = {
             referencedRelation: "streamers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       user_achievements: {
@@ -516,6 +648,13 @@ export type Database = {
             columns: ["achievement_id"]
             isOneToOne: false
             referencedRelation: "achievements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_achievements_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
             referencedColumns: ["id"]
           },
         ]
@@ -569,6 +708,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "user_analytics_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "user_analytics_worst_performing_streamer_id_fkey"
             columns: ["worst_performing_streamer_id"]
             isOneToOne: false
@@ -596,7 +742,22 @@ export type Database = {
           following_id?: string
           id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_follows_follower_id_fkey"
+            columns: ["follower_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_follows_following_id_fkey"
+            columns: ["following_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -620,7 +781,80 @@ export type Database = {
           role?: Database["public"]["Enums"]["admin_role"]
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_suspensions: {
+        Row: {
+          created_at: string
+          id: string
+          is_permanent: boolean | null
+          lifted_at: string | null
+          lifted_by: string | null
+          reason: string
+          suspended_by: string
+          suspended_until: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_permanent?: boolean | null
+          lifted_at?: string | null
+          lifted_by?: string | null
+          reason: string
+          suspended_by: string
+          suspended_until?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_permanent?: boolean | null
+          lifted_at?: string | null
+          lifted_by?: string | null
+          reason?: string
+          suspended_by?: string
+          suspended_until?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_suspensions_lifted_by_fkey"
+            columns: ["lifted_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_suspensions_suspended_by_fkey"
+            columns: ["suspended_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_suspensions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       watchlist: {
         Row: {
@@ -649,11 +883,32 @@ export type Database = {
             referencedRelation: "streamers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "watchlist_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
     Views: {
-      [_ in never]: never
+      admin_users_view: {
+        Row: {
+          avatar_url: string | null
+          balance: number | null
+          email: string | null
+          email_confirmed_at: string | null
+          id: string | null
+          is_banned: boolean | null
+          last_sign_in_at: string | null
+          registered_at: string | null
+          role: Database["public"]["Enums"]["admin_role"] | null
+          username: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_admin_role: {

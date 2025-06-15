@@ -6,7 +6,9 @@ import {
   Users, 
   TrendingUp, 
   FileText,
-  Home
+  Home,
+  UserCog,
+  CreditCard
 } from "lucide-react";
 
 interface AdminNavigationProps {
@@ -20,7 +22,8 @@ export const AdminNavigation = ({ activeTab, setActiveTab, userRole }: AdminNavi
     { id: "overview", label: "Overview", icon: Home, allowedRoles: ["admin", "mod", "streamer"] },
     { id: "api-keys", label: "API Keys", icon: Key, allowedRoles: ["admin", "mod"] },
     { id: "streamers", label: "Streamers", icon: TrendingUp, allowedRoles: ["admin", "mod", "streamer"] },
-    { id: "users", label: "User Roles", icon: Users, allowedRoles: ["admin"] },
+    { id: "user-management", label: "User Management", icon: CreditCard, allowedRoles: ["admin"] },
+    { id: "user-roles", label: "User Roles", icon: Users, allowedRoles: ["admin"] },
     { id: "logs", label: "Admin Logs", icon: FileText, allowedRoles: ["admin"] },
   ];
 
