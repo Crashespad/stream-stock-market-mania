@@ -270,6 +270,167 @@ export type Database = {
           },
         ]
       }
+      fund_portfolio: {
+        Row: {
+          avg_price: number
+          fund_id: number
+          id: number
+          shares: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avg_price: number
+          fund_id: number
+          id?: number
+          shares?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avg_price?: number
+          fund_id?: number
+          id?: number
+          shares?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fund_portfolio_fund_id_fkey"
+            columns: ["fund_id"]
+            isOneToOne: false
+            referencedRelation: "funds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fund_portfolio_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fund_transactions: {
+        Row: {
+          created_at: string
+          fund_id: number
+          id: number
+          price: number
+          shares: number
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          fund_id: number
+          id?: number
+          price: number
+          shares: number
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          fund_id?: number
+          id?: number
+          price?: number
+          shares?: number
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fund_transactions_fund_id_fkey"
+            columns: ["fund_id"]
+            isOneToOne: false
+            referencedRelation: "funds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fund_transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      funds: {
+        Row: {
+          change: number
+          change_percent: number
+          created_at: string
+          description: string | null
+          game_id: number
+          has_paid_out: boolean
+          id: number
+          is_active: boolean
+          name: string
+          payout_threshold: number
+          price: number
+          total_streamers: number
+          updated_at: string
+        }
+        Insert: {
+          change?: number
+          change_percent?: number
+          created_at?: string
+          description?: string | null
+          game_id: number
+          has_paid_out?: boolean
+          id?: number
+          is_active?: boolean
+          name: string
+          payout_threshold?: number
+          price?: number
+          total_streamers?: number
+          updated_at?: string
+        }
+        Update: {
+          change?: number
+          change_percent?: number
+          created_at?: string
+          description?: string | null
+          game_id?: number
+          has_paid_out?: boolean
+          id?: number
+          is_active?: boolean
+          name?: string
+          payout_threshold?: number
+          price?: number
+          total_streamers?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funds_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      games: {
+        Row: {
+          created_at: string
+          id: number
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string
+        }
+        Relationships: []
+      }
       leaderboard: {
         Row: {
           calculated_at: string
@@ -509,6 +670,45 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      streamer_games: {
+        Row: {
+          created_at: string
+          game_id: number
+          id: number
+          played_at: string
+          streamer_id: number
+        }
+        Insert: {
+          created_at?: string
+          game_id: number
+          id?: number
+          played_at?: string
+          streamer_id: number
+        }
+        Update: {
+          created_at?: string
+          game_id?: number
+          id?: number
+          played_at?: string
+          streamer_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "streamer_games_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "streamer_games_streamer_id_fkey"
+            columns: ["streamer_id"]
+            isOneToOne: false
+            referencedRelation: "streamers"
             referencedColumns: ["id"]
           },
         ]
@@ -921,6 +1121,10 @@ export type Database = {
       is_admin_user: {
         Args: { _user_id: string }
         Returns: boolean
+      }
+      update_fund_prices: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
     }
     Enums: {
