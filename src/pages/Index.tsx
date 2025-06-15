@@ -12,6 +12,7 @@ import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMarketData } from "@/hooks/useMarketData";
 import { useFundsData } from "@/hooks/useFundsData";
+import { useFundTrading } from "@/hooks/useFundTrading";
 import { MarketView } from "@/components/market/MarketView";
 import { FundsView } from "@/components/funds/FundsView";
 import { Tables } from "@/integrations/supabase/types";
@@ -50,6 +51,7 @@ const Index = () => {
   
   const { streamers, balance, portfolio, totalPortfolioValue, isLoading: isLoadingMarketData, profile, refetchStreamers, refetchProfile } = useMarketData(session);
   const { funds, fundPortfolio, totalFundPortfolioValue, isLoading: isLoadingFundsData, refetchFunds, refetchFundPortfolio } = useFundsData(session);
+  const { executeFundTrade, isTrading } = useFundTrading(session);
   
   const isLoading = isSessionLoading || isLoadingMarketData || isLoadingFundsData;
 
@@ -61,12 +63,14 @@ const Index = () => {
     setIsModalOpen(false);
   };
 
-  const handleFundTrade = (fundId: number, action: string, shares: number, price: number) => {
-    toast({
-      title: "Fund trading is coming soon!",
-      description: "We are working on implementing the fund trade execution logic.",
-    });
-    setIsFundModalOpen(false);
+  const handleFundTrade = async (fundId: number, action: string, shares: number, price: number) => {
+    const success = await executeFundTrade(fundId, action, shares, price);
+    if (success) {
+      setIsFundModalOpen(false);
+      // Refetch data to update the UI
+      refetchFunds();
+      refetchFundPortfolio();
+    }
   };
   
   const handleSelectStreamer = (streamer: Tables<'streamers'>) => {
@@ -205,6 +209,7 @@ const Index = () => {
         fund={selectedFund}
         onTrade={handleFundTrade}
         currentShares={fundPortfolio?.find(p => p.fund_id === selectedFund?.id)?.shares || 0}
+        isTrading={isTrading}
       />}
     </div>
   );

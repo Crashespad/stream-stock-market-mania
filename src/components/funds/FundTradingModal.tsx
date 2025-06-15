@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Gamepad2, TrendingUp, TrendingDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Gamepad2, TrendingUp, TrendingDown, ArrowUp, ArrowDown, Loader2 } from "lucide-react";
 import { Tables } from "@/integrations/supabase/types";
 
 interface FundTradingModalProps {
@@ -13,9 +13,10 @@ interface FundTradingModalProps {
   fund: Tables<'funds'> | null;
   onTrade: (fundId: number, action: string, shares: number, price: number) => void;
   currentShares: number;
+  isTrading?: boolean;
 }
 
-export const FundTradingModal = ({ isOpen, onClose, fund, onTrade, currentShares }: FundTradingModalProps) => {
+export const FundTradingModal = ({ isOpen, onClose, fund, onTrade, currentShares, isTrading = false }: FundTradingModalProps) => {
   const [action, setAction] = useState("buy");
   const [shares, setShares] = useState(1);
 
@@ -77,6 +78,9 @@ export const FundTradingModal = ({ isOpen, onClose, fund, onTrade, currentShares
           {currentShares > 0 && (
             <div className="bg-blue-900/30 rounded-lg p-3 text-center">
               <p className="text-blue-300">You own <span className="font-bold">{currentShares}</span> shares</p>
+              <p className="text-sm text-gray-400">
+                Current value: ${(currentShares * fund.price).toFixed(2)}
+              </p>
             </div>
           )}
 
@@ -86,7 +90,7 @@ export const FundTradingModal = ({ isOpen, onClose, fund, onTrade, currentShares
               <Button
                 variant={action === "buy" ? "default" : "outline"}
                 onClick={() => setAction("buy")}
-                disabled={fund.has_paid_out || !fund.is_active}
+                disabled={fund.has_paid_out || !fund.is_active || isTrading}
                 className={`flex-col h-auto py-3 ${action === "buy" ? "bg-green-600 hover:bg-green-700" : "border-green-600 text-green-400 hover:bg-green-600/20"}`}
               >
                 <ArrowUp className="w-5 h-5 mb-1" />
@@ -95,7 +99,7 @@ export const FundTradingModal = ({ isOpen, onClose, fund, onTrade, currentShares
               <Button
                 variant={action === "sell" ? "default" : "outline"}
                 onClick={() => setAction("sell")}
-                disabled={currentShares === 0 || fund.has_paid_out}
+                disabled={currentShares === 0 || fund.has_paid_out || isTrading}
                 className={`flex-col h-auto py-3 ${action === "sell" ? "bg-red-600 hover:bg-red-700" : "border-red-600 text-red-400 hover:bg-red-600/20"}`}
               >
                 <ArrowDown className="w-5 h-5 mb-1" />
@@ -108,7 +112,7 @@ export const FundTradingModal = ({ isOpen, onClose, fund, onTrade, currentShares
             <div className="bg-green-900/30 rounded-lg p-3 text-sm">
               <p className="text-green-300 font-semibold mb-1">Fund Investment</p>
               <p className="text-gray-300">
-                This fund tracks {fund.total_streamers} streamers. 
+                This fund tracks {fund.total_streamers} streamers playing the same game. 
                 When it reaches ${fund.payout_threshold.toFixed(2)}, all shareholders get paid out.
               </p>
             </div>
@@ -123,6 +127,7 @@ export const FundTradingModal = ({ isOpen, onClose, fund, onTrade, currentShares
               value={shares}
               onChange={(e) => setShares(parseInt(e.target.value) || 1)}
               className="bg-gray-800 border-gray-600 text-white"
+              disabled={isTrading}
             />
           </div>
 
@@ -145,14 +150,21 @@ export const FundTradingModal = ({ isOpen, onClose, fund, onTrade, currentShares
 
           <Button
             onClick={handleTrade}
-            disabled={fund.has_paid_out && action === "buy"}
+            disabled={fund.has_paid_out && action === "buy" || isTrading}
             className={`w-full font-semibold ${
               action === "buy" 
                 ? "bg-green-600 hover:bg-green-700" 
                 : "bg-red-600 hover:bg-red-700"
             }`}
           >
-            {action === "buy" ? "Buy Fund Shares" : "Sell Fund Shares"}
+            {isTrading ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              action === "buy" ? "Buy Fund Shares" : "Sell Fund Shares"
+            )}
           </Button>
         </div>
       </DialogContent>
