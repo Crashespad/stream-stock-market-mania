@@ -42,6 +42,42 @@ export type Database = {
         }
         Relationships: []
       }
+      api_configs: {
+        Row: {
+          access_token: string | null
+          client_id: string | null
+          client_secret: string | null
+          created_at: string
+          expires_at: string | null
+          id: string
+          refresh_token: string | null
+          service: string
+          updated_at: string
+        }
+        Insert: {
+          access_token?: string | null
+          client_id?: string | null
+          client_secret?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          refresh_token?: string | null
+          service: string
+          updated_at?: string
+        }
+        Update: {
+          access_token?: string | null
+          client_id?: string | null
+          client_secret?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          refresh_token?: string | null
+          service?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       balances: {
         Row: {
           balance: number
@@ -337,9 +373,11 @@ export type Database = {
           change: number
           change_percent: number
           created_at: string
+          external_id: string | null
           followers: number
           id: number
           is_live: boolean | null
+          last_updated: string | null
           name: string
           platform: string
           price: number
@@ -353,9 +391,11 @@ export type Database = {
           change: number
           change_percent: number
           created_at?: string
+          external_id?: string | null
           followers: number
           id?: number
           is_live?: boolean | null
+          last_updated?: string | null
           name: string
           platform: string
           price: number
@@ -369,9 +409,11 @@ export type Database = {
           change?: number
           change_percent?: number
           created_at?: string
+          external_id?: string | null
           followers?: number
           id?: number
           is_live?: boolean | null
+          last_updated?: string | null
           name?: string
           platform?: string
           price?: number

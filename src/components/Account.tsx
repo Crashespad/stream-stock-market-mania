@@ -1,135 +1,138 @@
 
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { Tables } from '@/integrations/supabase/types';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2 } from 'lucide-react';
+import { supabase } from "@/integrations/supabase/client";
+import { Tables } from "@/integrations/supabase/types";
+import { User, Settings, Key, Plus } from "lucide-react";
+import { ApiKeysPanel } from "./account/ApiKeysPanel";
 
 interface AccountProps {
-  profile: Tables<'profiles'> | null | undefined;
-  streamers: Tables<'streamers'>[] | null | undefined;
+  profile: Tables<'profiles'> | null;
+  streamers: Tables<'streamers'>[] | undefined;
   refetchProfile: () => void;
   refetchStreamers: () => void;
 }
 
 export const Account = ({ profile, streamers, refetchProfile, refetchStreamers }: AccountProps) => {
-    const { toast } = useToast();
-    const [username, setUsername] = useState('');
-    const [avatarUrl, setAvatarUrl] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [claimableStreamerId, setClaimableStreamerId] = useState<string | undefined>(undefined);
-    const [claiming, setClaiming] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [username, setUsername] = useState(profile?.username || "");
+  const { toast } = useToast();
 
-    useEffect(() => {
-        if (profile) {
-            setUsername(profile.username || '');
-            setAvatarUrl(profile.avatar_url || '');
-        }
-    }, [profile]);
+  const handleUpdateProfile = async () => {
+    if (!profile) return;
     
-    const handleUpdateProfile = async () => {
-        if (!profile) return;
-        setLoading(true);
-        const { error } = await supabase.from('profiles').update({ username, avatar_url: avatarUrl }).eq('id', profile.id);
-        if (error) {
-            toast({ title: 'Error updating profile', description: error.message, variant: 'destructive' });
-        } else {
-            toast({ title: 'Profile updated successfully!' });
-            refetchProfile();
-        }
-        setLoading(false);
-    };
+    setIsUpdating(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ username })
+        .eq('id', profile.id);
 
-    const handleClaimStreamer = async () => {
-        if (!claimableStreamerId) {
-            toast({ title: 'Please select a streamer to claim.', variant: 'destructive' });
-            return;
-        }
-        if (!profile) return;
+      if (error) throw error;
 
-        setClaiming(true);
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError || !user) {
-            toast({ title: 'You must be logged in to claim a streamer', variant: 'destructive' });
-            setClaiming(false);
-            return;
-        }
-        
-        const { error } = await supabase.from('streamers').update({ user_id: user.id }).eq('id', parseInt(claimableStreamerId, 10));
-        if (error) {
-            toast({ title: 'Error claiming streamer', description: error.message, variant: 'destructive' });
-        } else {
-            toast({ title: 'Streamer claimed successfully!' });
-            refetchStreamers();
-            refetchProfile(); // A claimed streamer is part of profile state indirectly
-            setClaimableStreamerId(undefined);
-        }
-        setClaiming(false);
-    };
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been updated successfully.",
+      });
+      
+      refetchProfile();
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update profile. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
-    const unClaimedStreamers = streamers?.filter(s => s.user_id === null) || [];
-    const claimedStreamer = streamers?.find(s => s.user_id === profile?.id);
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold text-white">Account Settings</h1>
+      </div>
 
-    return (
-        <div className="space-y-8">
-            <Card className="bg-white/10 backdrop-blur-md border-white/20 text-white">
-                <CardHeader>
-                    <CardTitle>Your Profile</CardTitle>
-                    <CardDescription className="text-gray-400">Update your username and avatar.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div>
-                        <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-1">Username</label>
-                        <Input id="username" value={username} onChange={(e) => setUsername(e.target.value)} className="bg-gray-800 border-gray-600 text-white placeholder:text-gray-400" />
-                    </div>
-                    <div>
-                        <label htmlFor="avatar" className="block text-sm font-medium text-gray-300 mb-1">Avatar URL</label>
-                        <Input id="avatar" value={avatarUrl} onChange={(e) => setAvatarUrl(e.target.value)} className="bg-gray-800 border-gray-600 text-white placeholder:text-gray-400" />
-                    </div>
-                    <Button onClick={handleUpdateProfile} disabled={loading}>
-                        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Update Profile
-                    </Button>
-                </CardContent>
-            </Card>
+      <Tabs defaultValue="profile" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-3 bg-white/10 border-white/20">
+          <TabsTrigger value="profile" className="text-white data-[state=active]:bg-white/20">
+            <User className="w-4 h-4 mr-2" />
+            Profile
+          </TabsTrigger>
+          <TabsTrigger value="api" className="text-white data-[state=active]:bg-white/20">
+            <Key className="w-4 h-4 mr-2" />
+            API Integration
+          </TabsTrigger>
+          <TabsTrigger value="streamers" className="text-white data-[state=active]:bg-white/20">
+            <Plus className="w-4 h-4 mr-2" />
+            My Streamers
+          </TabsTrigger>
+        </TabsList>
 
-            <Card className="bg-white/10 backdrop-blur-md border-white/20 text-white">
-                <CardHeader>
-                    <CardTitle>Claim a Streamer</CardTitle>
-                    <CardDescription className="text-gray-400">Claim a streamer to manage their stock. You can only claim one.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    {claimedStreamer ? (
-                        <div>
-                            <p className="text-lg">You have claimed: <span className="font-bold text-purple-400">{claimedStreamer.name}</span></p>
-                            <p className="text-gray-400 mt-2">You can manage this streamer's stock page (feature coming soon).</p>
-                        </div>
-                    ) : unClaimedStreamers.length > 0 ? (
-                        <div className="flex items-center gap-4">
-                            <Select onValueChange={setClaimableStreamerId} value={claimableStreamerId}>
-                                <SelectTrigger className="w-full md:w-[280px] bg-gray-800 border-gray-600 text-white">
-                                    <SelectValue placeholder="Select a streamer to claim" />
-                                </SelectTrigger>
-                                <SelectContent className="bg-gray-800 border-gray-600 text-white">
-                                    {unClaimedStreamers.map(s => (
-                                        <SelectItem key={s.id} value={s.id.toString()}>{s.name}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            <Button onClick={handleClaimStreamer} disabled={claiming || !claimableStreamerId}>
-                                {claiming && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Claim
-                            </Button>
-                        </div>
-                    ) : (
-                        <p>All streamers are currently claimed.</p>
-                    )}
-                </CardContent>
-            </Card>
-        </div>
-    )
-}
+        <TabsContent value="profile">
+          <Card className="bg-white/10 backdrop-blur-md border-white/20 text-white">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="w-5 h-5" />
+                Profile Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Enter your username"
+                  className="bg-white/5 border-white/20 text-white"
+                />
+              </div>
+              
+              <Button 
+                onClick={handleUpdateProfile}
+                disabled={isUpdating || username === profile?.username}
+                className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
+              >
+                {isUpdating ? "Updating..." : "Update Profile"}
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="api">
+          <ApiKeysPanel />
+        </TabsContent>
+
+        <TabsContent value="streamers">
+          <Card className="bg-white/10 backdrop-blur-md border-white/20 text-white">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Plus className="w-5 h-5" />
+                My Streamers
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <Plus className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Add Your Own Streamers</h3>
+                <p className="text-gray-400 mb-4">
+                  This feature is coming soon! You'll be able to add your own streaming channels to the platform.
+                </p>
+                <Button disabled variant="outline" className="bg-white/10 border-white/20 text-white">
+                  Coming Soon
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
