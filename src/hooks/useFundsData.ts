@@ -13,7 +13,8 @@ export const useFundsData = (session: Session | null) => {
           *,
           games (
             id,
-            name
+            name,
+            created_at
           )
         `)
         .order('price', { ascending: false });
