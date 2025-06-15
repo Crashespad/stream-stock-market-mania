@@ -12,14 +12,13 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
+type AdminRole = 'admin' | 'mod' | 'streamer';
+
 interface UserRole {
   id: string;
   user_id: string;
-  role: string;
+  role: AdminRole;
   created_at: string;
-  profiles?: {
-    username: string | null;
-  };
 }
 
 export const UserRolesManagement = () => {
@@ -37,15 +36,7 @@ export const UserRolesManagement = () => {
     try {
       const { data, error } = await supabase
         .from('user_roles')
-        .select(`
-          id,
-          user_id,
-          role,
-          created_at,
-          profiles (
-            username
-          )
-        `)
+        .select('id, user_id, role, created_at')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -154,7 +145,6 @@ export const UserRolesManagement = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>User ID</TableHead>
-                  <TableHead>Username</TableHead>
                   <TableHead>Role</TableHead>
                   <TableHead>Assigned</TableHead>
                   <TableHead>Actions</TableHead>
@@ -165,9 +155,6 @@ export const UserRolesManagement = () => {
                   <TableRow key={userRole.id}>
                     <TableCell className="font-mono text-sm">
                       {userRole.user_id.slice(0, 8)}...
-                    </TableCell>
-                    <TableCell>
-                      {userRole.profiles?.username || 'No username'}
                     </TableCell>
                     <TableCell>
                       <Badge variant={getRoleBadgeVariant(userRole.role)}>
@@ -206,7 +193,7 @@ interface UserRoleFormProps {
 const UserRoleForm = ({ onSave, onCancel }: UserRoleFormProps) => {
   const [formData, setFormData] = useState({
     user_id: '',
-    role: 'streamer',
+    role: 'streamer' as AdminRole,
   });
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -218,10 +205,10 @@ const UserRoleForm = ({ onSave, onCancel }: UserRoleFormProps) => {
     try {
       const { error } = await supabase
         .from('user_roles')
-        .insert([{
+        .insert({
           user_id: formData.user_id,
           role: formData.role,
-        }]);
+        });
 
       if (error) throw error;
 
@@ -269,7 +256,7 @@ const UserRoleForm = ({ onSave, onCancel }: UserRoleFormProps) => {
 
       <div className="space-y-2">
         <Label htmlFor="role">Role</Label>
-        <Select value={formData.role} onValueChange={(value) => setFormData(prev => ({ ...prev, role: value }))}>
+        <Select value={formData.role} onValueChange={(value: AdminRole) => setFormData(prev => ({ ...prev, role: value }))}>
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
