@@ -1,0 +1,4 @@
+deployment:
+  tasks:
+    - export DEPLOYPATH=/ROOT_DIRECTORY/APP_CODE_FOLDER/
+    - /bin/cp -R DIRECTORY_TO_BE_COPIED $DEPLOYPATH
